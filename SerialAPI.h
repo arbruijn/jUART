@@ -64,6 +64,7 @@ public:
 
     void recv_callback(const FB::JSObjectPtr& callback);
     void err_callback(const FB::JSObjectPtr& callback);
+    FB::VariantList get_ports(void);
 
 
 

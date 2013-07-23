@@ -25,6 +25,7 @@ SerialAPI::SerialAPI(const FB::BrowserHostPtr& host, const int securityZone) : J
     registerMethod("recv_callback",  make_method(this, &SerialAPI::recv_callback));
     registerMethod("err_callback",  make_method(this, &SerialAPI::err_callback));
     registerMethod("close",  make_method(this, &SerialAPI::close));
+    registerProperty("ports",  make_property(this, &SerialAPI::get_ports));
 }
 
 SerialAPI::~SerialAPI(void)
@@ -148,4 +149,37 @@ void SerialAPI::do_close(const boost::system::error_code& error)
         return; // ignore it because the connection canceled the timer 
     
     serial.close(); 
+}
+
+FB::VariantList SerialAPI::get_ports(void)
+{
+    FB::VariantList valVec;
+
+#ifdef WIN32
+	HKEY hKey;
+    if (::RegOpenKeyEx(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+        return -1;
+
+    for (DWORD dwIndex = 0;; dwIndex++) {
+        TCHAR valueName[128];
+        BYTE valueData[128];
+        DWORD cbName = sizeof(valueName) / sizeof(valueName[0]);
+        DWORD cbData = sizeof(valueData) / sizeof(valueData[0]);
+        LONG lRet;
+        if ((lRet = ::RegEnumValue(hKey, dwIndex, valueName, &cbName, NULL,
+            NULL, valueData, &cbData))) {
+            if (lRet == ERROR_NO_MORE_ITEMS)
+                break;
+            // report error...
+            break;
+        }
+        std::vector<std::wstring> pair(2);
+        pair[0] = std::wstring((wchar_t *)szValueData);
+        pair[1] = std::wstring(szValueName);
+        vec.push_back(FB::make_variant_list(pair));
+    }
+    ::RegCloseKey(hKey);
+#endif
+
+    return valVec;
 }
