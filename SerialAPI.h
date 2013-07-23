@@ -22,7 +22,7 @@
 class SerialAPI: public FB::JSAPIAuto
 {
 public:
-    SerialAPI(const FB::BrowserHostPtr& host);
+    SerialAPI(const FB::BrowserHostPtr& host, const int securityZone);
     ~SerialAPI(void);
 
     // Open serial device. e.g. "COM1" in Windows or "/dev/ttyS0" in Linux

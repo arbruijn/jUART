@@ -15,6 +15,7 @@
 #include "JSObject.h"
 #include "variant_list.h"
 #include "DOM/Document.h"
+#include "DOM/Window.h"
 #include "global/config.h"
 
 #include "jUARTAPI.h"
@@ -50,7 +51,12 @@ m_plugin(plugin), m_host(host)
         make_property(this,
         &jUARTAPI::get_version));
 
-    m_Serial = boost::make_shared<SerialAPI>(m_host);
+    std::string domain = m_host->getDOMWindow()->getNode("location")->getProperty<std::string>("host");
+    size_t colon = domain.find(':');
+    if (colon != std::string::npos)
+            domain = domain.substr(0, colon);
+    int secZone = domain.compare("localhost") == 0 ? FB::SecurityScope_Local : FB::SecurityScope_Public;
+    m_Serial = boost::make_shared<SerialAPI>(m_host, secZone);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

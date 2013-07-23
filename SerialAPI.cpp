@@ -13,8 +13,10 @@
 #include <boost/exception/all.hpp>
 #include <boost/exception/get_error_info.hpp>
 
-SerialAPI::SerialAPI(const FB::BrowserHostPtr& host) : m_host(host),io(), serial(io)
+SerialAPI::SerialAPI(const FB::BrowserHostPtr& host, const int securityZone) : JSAPIAuto(securityZone, "<JSAPI-Auto Secure Javascript Object>"),
+	m_host(host),io(), serial(io)
 {
+	FB::scoped_zonelock _l(this, FB::SecurityScope_Protected);
     registerMethod("open",  make_method(this, &SerialAPI::open));
     registerMethod("set_option",  make_method(this, &SerialAPI::set_option));
     registerMethod("send",  make_method(this, &SerialAPI::send));
